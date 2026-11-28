@@ -282,7 +282,12 @@ public static partial class Data
     {
         if (node is JsonValue v)
         {
+            // 📌 JsonValue の内部表現 (JsonElement / int / long 等) によらず
+            // 数値を拾えるよう、表現ごとに順に試す
             if (v.TryGetValue<double>(out var d)) return d;
+            if (v.TryGetValue<int>(out var i)) return i;
+            if (v.TryGetValue<long>(out var l)) return l;
+            if (v.TryGetValue<decimal>(out var m)) return (double)m;
             if (v.TryGetValue<string>(out var s)
                 && double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out var parsed))
                 return parsed;
