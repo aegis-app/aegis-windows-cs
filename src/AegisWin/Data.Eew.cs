@@ -177,9 +177,14 @@ public static partial class Data
     /// <summary>地点別の到達カウントダウン行を作る。到達から30秒を過ぎた
     /// 地点と、到達予想が無い地点は行にしない</summary>
     public static List<string> EewCountdownLines(EewInfo info, DateTime now)
+        => EewCountdownLines(info, Locations, now);
+
+    /// <summary>地点一覧を指定する版の到達カウントダウン行</summary>
+    public static List<string> EewCountdownLines(EewInfo info,
+        IReadOnlyList<Location> locations, DateTime now)
     {
         var lines = new List<string>();
-        foreach (var loc in Locations)
+        foreach (var loc in locations)
         {
             var arrival = EewArrival(info, loc);
             if (arrival is null) continue;

@@ -335,6 +335,59 @@ public static partial class Data
         return entries.Count == 0 ? "" : "週間： " + string.Join(" / ", entries);
     }
 
+    // ----------------------------------------
+    // 📊 構造化エントリ (GUI の表表示用)
+    // ----------------------------------------
+    /// <summary>時間別予報1件 (構造化)</summary>
+    public sealed record HourlyEntry(DateTime Time, int? Code, double? Temp, int? Pop, double? Precip);
+
+    /// <summary>時間別予報を構造化して返す (現在から明日の終わりまで、3時間刻み・最大12件)</summary>
+    public static List<HourlyEntry> ParseHourlyEntries(JsonNode? root, DateTime now)
+    {
+        var result = new List<HourlyEntry>();
+        var hourly = Child(root, "hourly");
+        var times = ArrOf(hourly, "time");
+        if (times is null) return result;
+        var temps = ArrOf(hourly, "temperature_2m_jma_seamless");
+        var pops = ArrOf(hourly, "precipitation_probability_ecmwf_ifs025");
+        var codes = ArrOf(hourly, "weather_code_jma_seamless");
+        var precips = ArrOf(hourly, "precipitation_jma_seamless");
+        var end = now.Date.AddDays(2);
+        for (int i = 0; i < times.Count && result.Count < 12; i++)
+        {
+            var t = ParseIsoLocal(StrOf(times[i]));
+            if (t < now.Date.AddHours(now.Hour) || t >= end || t.Hour % 3 != 0) continue;
+            result.Add(new HourlyEntry(t,
+                codes is not null && i < codes.Count ? IntOf(codes[i]) : null,
+                temps is not null && i < temps.Count ? NumOf(temps[i]) : null,
+                pops is not null && i < pops.Count && NumOf(pops[i]) is { } pv ? (int)RoundToLong(pv) : null,
+                precips is not null && i < precips.Count ? NumOf(precips[i]) : null));
+        }
+        return result;
+    }
+
+    /// <summary>日別予報1件 (構造化)</summary>
+    public sealed record DailyEntry(DateTime Date, int? Code, double? Min, double? Max, int? Pop, double? PrecipSum);
+
+    /// <summary>日別予報を構造化して返す (今日を含む全日)</summary>
+    public static List<DailyEntry> ParseDailyEntries(JsonNode? root)
+    {
+        var result = new List<DailyEntry>();
+        var times = ArrOf(Child(root, "daily"), "time");
+        if (times is null) return result;
+        for (int i = 0; i < times.Count; i++)
+        {
+            result.Add(new DailyEntry(ParseIsoLocal(StrOf(times[i])),
+                DailyAt(root, "weather_code_jma_seamless", i) is { } c ? (int)c : null,
+                DailyAt(root, "temperature_2m_min_jma_seamless", i),
+                DailyAt(root, "temperature_2m_max_jma_seamless", i),
+                DailyAt(root, "precipitation_probability_max_ecmwf_ifs025", i) is { } p
+                    ? (int)RoundToLong(p) : null,
+                DailyAt(root, "precipitation_sum_jma_seamless", i)));
+        }
+        return result;
+    }
+
     /// <summary>Open-Meteo の本文 (現在 + 時間別 + 週間 + 出典注記) を取得する</summary>
     public static async Task<string> FetchOpenMeteoTextAsync(Location loc)
     {
