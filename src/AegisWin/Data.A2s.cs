@@ -145,8 +145,8 @@ public static partial class Data
                 case "warning":
                     foreach (var loc in Locations)
                     {
-                        var info = A2sWarningInfoFor(loc.PrefCode, "");
-                        if (WarningCandidate(loc, info) is { } wc) ids.Add(wc.Id);
+                        var winfo = A2sWarningInfoFor(loc.PrefCode, "");
+                        if (WarningCandidate(loc, winfo) is { } wc) ids.Add(wc.Id);
                     }
                     break;
             }
