@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>AegisTest</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- GUI 非依存のロジック層をそのままリンク参照する -->
+    <Compile Include="..\AegisWin\Data.cs" Link="Data.cs" />
+    <Compile Include="..\AegisWin\Data.Quake.cs" Link="Data.Quake.cs" />
+    <Compile Include="..\AegisWin\Data.Eew.cs" Link="Data.Eew.cs" />
+    <Compile Include="..\AegisWin\Data.Weather.cs" Link="Data.Weather.cs" />
+    <Compile Include="..\AegisWin\Data.Briefing.cs" Link="Data.Briefing.cs" />
+    <Compile Include="..\AegisWin\Data.Features.cs" Link="Data.Features.cs" />
+    <Compile Include="..\AegisWin\Data.DiagNotify.cs" Link="Data.DiagNotify.cs" />
+    <Compile Include="..\AegisWin\Settings.cs" Link="Settings.cs" />
+    <Compile Include="..\AegisWin\Data.A2s.cs" Link="Data.A2s.cs" />
+    <Compile Include="..\AegisWin\A2sStream.cs" Link="A2sStream.cs" />
+  </ItemGroup>
+
+</Project>
