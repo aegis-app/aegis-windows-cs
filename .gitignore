@@ -1,0 +1,14 @@
+# ===== ビルド成果物 =====
+bin/
+obj/
+out/
+out-compressed/
+
+# ===== ローカル設定・実行時データ =====
+# 設定は %AppData%\AEGIS\settings.json に保存される (リポジトリには含めない)
+*.user
+.vs/
+
+# ===== OS / エディタ =====
+.DS_Store
+Thumbs.db
